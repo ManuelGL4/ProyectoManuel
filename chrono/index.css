@@ -1,0 +1,86 @@
+.project-container {
+    margin-bottom: 30px;
+}
+.project-title {
+    background-color: #C0C0C0;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 18px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+.task-container {
+    background-color: #D3D3D3;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.task-container .status-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    cursor: pointer;
+}
+.task-container .task-info {
+    flex-grow: 1;
+}
+.task-container .task-info h3 {
+    margin: 0;
+    font-size: 18px;
+}
+.task-container .task-info p {
+    margin: 0;
+    color: #333;
+}
+.task-container .notes {
+    flex-basis: 30%;
+    background-color: #ffffff;
+    padding: 10px;
+    border-radius: 15px;
+}
+.task-controls {
+    display: flex;
+    gap: 10px;
+}
+.search-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.search-container input[type="text"] {
+    flex-grow: 1;
+    margin-right: 10px; /* Espacio entre inputs y botón */
+}
+.time-buttons {
+    display: flex;
+    flex-direction: column;
+    margin-right: 20px;
+}
+.time-buttons button {
+    margin-bottom: 10px; /* Espacio entre los botones */
+}
+.success-message {
+    background-color: #d4edda; /* Color de fondo verde claro */
+    color: #155724; /* Color de texto verde oscuro */
+    padding: 10px;
+    margin: 20px 0;
+    border: 1px solid #c3e6cb; /* Bordes verdes */
+    border-radius: 5px; /* Bordes redondeados */
+}
+
+.error-message {
+    background-color: #f8d7da; /* Color de fondo rojo claro */
+    color: #721c24; /* Color de texto rojo oscuro */
+    padding: 10px;
+    margin: 20px 0;
+    border: 1px solid #f5c6cb; /* Bordes rojos */
+    border-radius: 5px; /* Bordes redondeados */
+}
