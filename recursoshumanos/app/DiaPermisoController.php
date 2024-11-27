@@ -96,7 +96,5 @@ public function deleteRegistro($id) {
         setEventMessages(array("Error al intentar eliminar el registro, por favor, inténtelo de nuevo."), array(), 'errors');
     }
 }
-public function download($idPermiso) {
-    $this->model->download($idPermiso);
-}
+
 }

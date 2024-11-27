@@ -284,58 +284,6 @@ class Dia_permiso
     }
 
 
-
-    public function download($idPermiso) {
-        // Directorio donde están los archivos
-        $uploadDir = DOL_DOCUMENT_ROOT . "/permisos/archivos/";
-    
-        // Obtener las rutas de los archivos asociados a este permiso desde la base de datos
-        $sql = "SELECT nombre_archivo, ruta_archivo 
-                FROM " . MAIN_DB_PREFIX . "permiso_archivos 
-                WHERE fk_permiso = " . intval($idPermiso);
-        $result = $this->db->query($sql);
-    
-        if ($this->db->num_rows($result) == 0) {
-            die("No se encontraron archivos para este permiso.");
-        }
-    
-        // Crear el archivo .zip
-        $zip = new ZipArchive();
-        $zipFileName = DOL_DOCUMENT_ROOT . "/permisos/archivos/permiso_$idPermiso.zip";
-        
-        // Abrir el archivo .zip para escritura
-        if ($zip->open($zipFileName, ZipArchive::CREATE) !== TRUE) {
-            die("No se pudo crear el archivo .zip.");
-        }
-    
-        // Iterar sobre cada archivo y agregarlo al .zip
-        while ($row = $this->db->fetch_object($result)) {
-            // Convertir las barras invertidas a barras normales
-            $filePath = str_replace("\\", "/", $row->ruta_archivo); // Asegúrate de usar barras normales
-            $fileName = basename($filePath);  // Solo el nombre del archivo
-    
-            // Verificar si el archivo existe en el directorio
-            if (file_exists($filePath)) {
-                // Agregar el archivo al .zip
-                $zip->addFile($filePath, $fileName);
-            } else {
-                echo "El archivo $fileName no se encuentra en el directorio: $filePath";
-            }
-        }
-    
-        // Cerrar el archivo .zip
-        $zip->close();
-    
-        // Forzar la descarga del archivo .zip
-        header('Content-Type: application/zip');
-        header('Content-Disposition: attachment; filename="permiso_' . $idPermiso . '.zip"');
-        header('Content-Length: ' . filesize($zipFileName));
-        readfile($zipFileName);
-    
-        // Eliminar el archivo .zip temporal después de la descarga
-        unlink($zipFileName);
-        exit();
-    }
     
     
     

@@ -19,6 +19,7 @@
 use Luracast\Restler\RestException;
 
 dol_include_once('/recursoshumanos/class/informacion_noticias.class.php');
+dol_include_once('/recursoshumanos/app/DiaPermisoController.php');
 
 
 
@@ -40,6 +41,7 @@ class RecursosHumanosApi extends DolibarrApi
 	 * @var Informacion_noticias $informacion_noticias {@type Informacion_noticias}
 	 */
 	public $informacion_noticias;
+	public $diapermiso;
 
 	/**
 	 * Constructor
@@ -52,6 +54,7 @@ class RecursosHumanosApi extends DolibarrApi
 		global $db, $conf;
 		$this->db = $db;
 		$this->informacion_noticias = new Informacion_noticias($this->db);
+		$this->diapermiso = new DiaPermisoController($this->db);
 	}
 
 	/**
@@ -344,7 +347,6 @@ public function listar($offset = 0, $limit = 10, $fk_user_id, $page = 1) {
 
     $obj_ret = array();
 
-    // Check if user exists
     $userSql = "SELECT * FROM ".MAIN_DB_PREFIX."user WHERE rowid = " . intval($fk_user_id);
     $userResql = $this->db->query($userSql);
     
@@ -354,44 +356,34 @@ public function listar($offset = 0, $limit = 10, $fk_user_id, $page = 1) {
         throw new RestException(404, "No se encontró el usuario");
     }
 
-    // Construct SQL query with JOINs to get username and task label
 	$sql = "SELECT dp.*, CONCAT(u.firstname, ' ', u.lastname) AS user_name 
 	FROM ".MAIN_DB_PREFIX."recursoshumanos_dias_permiso dp
 	LEFT JOIN ".MAIN_DB_PREFIX."user u ON u.rowid = dp.fk_user_creat";
 
-    // If the user is not an admin, filter by fk_userid
     if (!$user->admin) {
         $sql .= " WHERE dp.fk_user_creat = " . intval($fk_user_id);
     }
 
-    // Calculate the offset for pagination
-    $offset = ($page - 1) * $limit;  // Esto asegurará que el offset se calcule correctamente según la página solicitada
+    $offset = ($page - 1) * $limit; 
 
-    // Add ordering and pagination
     $sql .= " ORDER BY dp.rowid DESC";
     $sql .= " LIMIT " . intval($limit) . " OFFSET " . intval($offset);
 
-    // Execute the query
     $result = $this->db->query($sql);
 
-    // Check if the query was successful
     if ($result) {
-        // Fetch results and add to $obj_ret
         while ($obj = $this->db->fetch_object($result)) {
             $obj->is_admin = $user->admin ? true : false;
             $obj_ret[] = $obj;
         }
     } else {
-        // If there's an error in the query, throw an exception
         throw new RestException(503, 'Error when retrieving tiempos list: ' . $this->db->lasterror());
     }
 	
-    // If no results are found, throw an exception
     if (count($obj_ret) == 0) {
         throw new RestException(404, 'No tiempos found');
     }
 
-    // Return the result
     return $obj_ret;
 }
 
@@ -470,6 +462,84 @@ public function updateDiaPermiso($request_data) {
 			throw new RestException(500, 'Error al eliminar el permiso');
 		}
 	}
+
+/**
+ * Get list of usuarios with pagination and filtering by userId
+ *
+ * @return array        Array of user objects with rowid and name
+ *
+ * @throws RestException
+ */
+public function listarUsuarios() {
+    global $db;
+
+    $obj_ret = array();
+
+    $userSql = "SELECT rowid, login, firstname, lastname FROM ".MAIN_DB_PREFIX."user WHERE admin=1";
+    $userResql = $this->db->query($userSql);
+    
+    if ($userResql && $this->db->num_rows($userResql) > 0) {
+        while ($obj = $this->db->fetch_object($userResql)) {
+            $obj_ret[] = array(
+                'rowid' => $obj->rowid,
+                'nombre' => $obj->firstname . ' ' . $obj->lastname  
+            );
+        }
+    } else {
+        throw new RestException(404, 'No se encontraron usuarios');
+    }
+
+    return $obj_ret;
+}
+
+
+/**
+ * Crear un nuevo día de permiso para un usuario
+ *
+ * @param array $request_data   Datos de la solicitud, como el usuario y el día de permiso
+ * @return array   ID del nuevo permiso o error
+ *
+ * @throws RestException
+ *
+ * @url    POST permisos/
+ */
+public function postPermiso($request_data = null)
+{
+        
+        // Recoger los datos desde $request_data
+        $descripcion = $request_data['motivos'];
+        $usuario_id = intval($request_data['usuario']);
+        $admin_id = $request_data['fk_user_validador'];
+        $fecha_solicitada = $request_data['date_solic'];
+        $fecha_solicitada_fin = $request_data['date_solic_fin'];
+
+		try {
+			$fecha_solicitada_obj = new DateTime($fecha_solicitada);  // Crea un objeto DateTime
+			$fecha_solicitada_fin_obj = new DateTime($fecha_solicitada_fin);  // Crea un objeto DateTime
+		} catch (Exception $e) {
+			throw new RestException(400, "Fecha inválida: " . $e->getMessage());
+		}
+	
+		// Convertir las fechas a formato 'Y-m-d H:i:s' para insertarlas en la base de datos
+		$fecha_solicitada = $fecha_solicitada_obj->format('Y-m-d H:i:s');
+		$fecha_solicitada_fin = $fecha_solicitada_fin_obj->format('Y-m-d H:i:s');
+	    $fecha_creation = date('Y-m-d H:i:s');  // Fecha actual para la columna date_creation
+
+	
+		$sql = "INSERT INTO ".MAIN_DB_PREFIX."recursoshumanos_dias_permiso  
+		(label, fk_user_solicitado, date_solic, date_solic_fin, fk_user_creat, fk_user_validador, status, date_creation, motivos) 
+		VALUES 
+		('".$descripcion."', $usuario_id, '".$fecha_solicitada."', '".$fecha_solicitada_fin."', $usuario_id, $admin_id, 0, '".$fecha_creation."', 'Motivos no especificados')";
+		
+		$result=$this->db->query($sql);
+		if ($result) {
+			return ['id' => $result];
+		} else {
+			throw new RestException(500, "Hubo un problema al insertar el permiso.$sql");
+		}
+
+}
+
 
 
 

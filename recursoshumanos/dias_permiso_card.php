@@ -2,50 +2,6 @@
 <?php
 ob_start();
 
-/* Copyright (C) 2017 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) ---Put here your own copyright and developer email---
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
-/**
- *   	\file       dias_permiso_card.php
- *		\ingroup    recursoshumanos
- *		\brief      Page to create/edit/view dias_permiso
- */
-
-//if (! defined('NOREQUIREDB'))              define('NOREQUIREDB', '1');				// Do not create database handler $db
-//if (! defined('NOREQUIREUSER'))            define('NOREQUIREUSER', '1');				// Do not load object $user
-//if (! defined('NOREQUIRESOC'))             define('NOREQUIRESOC', '1');				// Do not load object $mysoc
-//if (! defined('NOREQUIRETRAN'))            define('NOREQUIRETRAN', '1');				// Do not load object $langs
-//if (! defined('NOSCANGETFORINJECTION'))    define('NOSCANGETFORINJECTION', '1');		// Do not check injection attack on GET parameters
-//if (! defined('NOSCANPOSTFORINJECTION'))   define('NOSCANPOSTFORINJECTION', '1');		// Do not check injection attack on POST parameters
-//if (! defined('NOCSRFCHECK'))              define('NOCSRFCHECK', '1');				// Do not check CSRF attack (test on referer + on token if option MAIN_SECURITY_CSRF_WITH_TOKEN is on).
-//if (! defined('NOTOKENRENEWAL'))           define('NOTOKENRENEWAL', '1');				// Do not roll the Anti CSRF token (used if MAIN_SECURITY_CSRF_WITH_TOKEN is on)
-//if (! defined('NOSTYLECHECK'))             define('NOSTYLECHECK', '1');				// Do not check style html tag into posted data
-//if (! defined('NOREQUIREMENU'))            define('NOREQUIREMENU', '1');				// If there is no need to load and show top and left menu
-//if (! defined('NOREQUIREHTML'))            define('NOREQUIREHTML', '1');				// If we don't need to load the html.form.class.php
-//if (! defined('NOREQUIREAJAX'))            define('NOREQUIREAJAX', '1');       	  	// Do not load ajax.lib.php library
-//if (! defined("NOLOGIN"))                  define("NOLOGIN", '1');					// If this page is public (can be called outside logged session). This include the NOIPCHECK too.
-//if (! defined('NOIPCHECK'))                define('NOIPCHECK', '1');					// Do not check IP defined into conf $dolibarr_main_restrict_ip
-//if (! defined("MAIN_LANG_DEFAULT"))        define('MAIN_LANG_DEFAULT', 'auto');					// Force lang to a particular value
-//if (! defined("MAIN_AUTHENTICATION_MODE")) define('MAIN_AUTHENTICATION_MODE', 'aloginmodule');	// Force authentication handler
-//if (! defined("NOREDIRECTBYMAINTOLOGIN"))  define('NOREDIRECTBYMAINTOLOGIN', 1);		// The main.inc.php does not make a redirect if not logged, instead show simple error message
-//if (! defined("FORCECSP"))                 define('FORCECSP', 'none');				// Disable all Content Security Policies
-//if (! defined('CSRFCHECK_WITH_TOKEN'))     define('CSRFCHECK_WITH_TOKEN', '1');		// Force use of CSRF protection with tokens even for GET
-//if (! defined('NOBROWSERNOTIF'))     		 define('NOBROWSERNOTIF', '1');				// Disable browser notification
-
 // Load Dolibarr environment
 $res = 0;
 // Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
@@ -199,13 +155,42 @@ if (empty($reshook)) {
 	include DOL_DOCUMENT_ROOT.'/core/actions_sendmails.inc.php';
 }
 
+print '<style>
+.modal-container {
+position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5);
+}
+.modal-body{
+background: white !important; margin: 15% auto !important; padding: 20px !important; border-radius: 5px !important; width: 400px !important; text-align: center !important;
+}
+#descripcion{
+    height: 168px !important;
+    width:625px !important;
+}
+#motivos{
+    height: 168px !important;
+    width:625px !important;
+}
 
+@media (min-width: 500px) and (max-width: 768px) {
+    #descripcion{
+    height: 110px !important;
+        width:62% !important;
+    }
+    #motivos{
+        height: 110px !important;
+        width:62% !important;
+    }
+
+}
+
+
+
+</style>';
 
 
 /*
- * View
+ * Vista
  *
- * Put here all code to build page
  */
 
 $form = new Form($db);
@@ -218,7 +203,6 @@ llxHeader('', $title, $help_url);
 
 
 
-// Part to create
 if ($action == 'create') {
 	print '<script>
     function closeModal() {
@@ -276,20 +260,19 @@ print "
 
 										print $form->select_dolusers($user->id, 'usuario', 1, '', 0);
 
-// Si el usuario no es administrador, deshabilitar el campo
-if (!$user->admin) {
-    echo '<script>
-        var usuarioField = document.getElementsByName("usuario")[0];
-        usuarioField.disabled = true;
-        
-        // Crear un campo oculto con el mismo valor del select deshabilitado
-        var hiddenField = document.createElement("input");
-        hiddenField.type = "hidden";
-        hiddenField.name = "usuario";
-        hiddenField.value = usuarioField.value;
-        usuarioField.parentNode.appendChild(hiddenField);
-    </script>';
-}
+                        // Si el usuario no es administrador, deshabilitar el campo
+                        if (!$user->admin) {
+                            echo '<script>
+                                var usuarioField = document.getElementsByName("usuario")[0];
+                                usuarioField.disabled = true;
+                                
+                                var hiddenField = document.createElement("input");
+                                hiddenField.type = "hidden";
+                                hiddenField.name = "usuario";
+                                hiddenField.value = usuarioField.value;
+                                usuarioField.parentNode.appendChild(hiddenField);
+                            </script>';
+                        }
 						print "
 					</td>
 					</tr>";
@@ -310,27 +293,27 @@ if (!$user->admin) {
 					<span class='fieldrequired'>Descripcion de la solicitud</span>
 					</td>
 					<td>
-						<textarea name='descripcion' id='descripcion' class='required'  style='height: 168px; width: 625px;'> " . htmlspecialchars($descripcion) . "</textarea>
+						<textarea name='descripcion' id='descripcion' class='required'  > " . htmlspecialchars($descripcion) . "</textarea>
 					</td>
 					</tr>
 
 					<tr>
-</tr>
-";
+                    </tr>
+                    ";
 
-	print '</table>'."\n";
+                        print '</table>'."\n";
 
-	print dol_get_fiche_end();
+                        print dol_get_fiche_end();
 
-	print '<div class="center">';
-	print "
-</table>
-</div>
-</div>
-<div class='center'>
-<input type='submit' class='button' name='guardar' value='Solicitar' id='btnModal'>
-<input type='button' class='button button-cancel' value='Volver al listado' onclick=\"window.location.href='dias_permiso_list.php';\">
-";
+                        print '<div class="center">';
+                        print "
+                    </table>
+                    </div>
+                    </div>
+                    <div class='center'>
+                    <input type='submit' class='button' name='guardar' value='Solicitar' id='btnModal'>
+                    <input type='button' class='button button-cancel' value='Volver al listado' onclick=\"window.location.href='dias_permiso_list.php';\">
+                    ";
 
 	print '</div>';
 
@@ -346,9 +329,29 @@ if (isset($_POST['guardar'])) {
     $admin_id = isset($_POST['admin']) ? $_POST['admin'] : null;
 
 
-    // Información del usuario y administrador
     $usuario_nombre = 'Usuario no especificado';
     $admin_nombre = 'Administrador no especificado';
+
+
+    $fecha_valida = true;
+    $mensaje_error = '';
+
+    if ($fecha !== 'Fecha no especificada' && $fecha_fin !== 'Fecha no especificada') {
+        $fecha_obj = new DateTime($fecha);
+        $fecha_fin_obj = new DateTime($fecha_fin);
+        
+        if ($fecha_obj > $fecha_fin_obj) {
+            $fecha_valida = false;
+            $mensaje_error = 'La fecha de inicio no puede ser mayor que la fecha final.';
+        }
+        
+        if ($fecha_fin_obj < $fecha_obj) {
+            $fecha_valida = false;
+            $mensaje_error = 'La fecha final no puede ser menor que la fecha de inicio.';
+        }
+    }
+
+    if ($fecha_valida) {
 
     if ($usuario_id) {
         $consulta_usuario = "SELECT firstname, lastname FROM " . MAIN_DB_PREFIX . "user WHERE rowid = " . intval($usuario_id);
@@ -374,9 +377,8 @@ if (isset($_POST['guardar'])) {
 
 
 
-    // Mostrar la confirmación
-    print '<div style="position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5);">
-    <div style="background: white; margin: 15% auto; padding: 20px; border-radius: 5px; width: 400px; text-align: center;">
+    print '<div class="modal-container">
+    <div class="modal-body">
         <h3>Confirmar Acción</h3>
         <p>Está seguro de que desea solicitar el día con la siguiente información:</p>
         <p><strong>Fecha solicitada:</strong> ' . htmlspecialchars($fecha_formateada) . ' <strong>a</strong> ' . htmlspecialchars($fecha_fin_formateada) . '</p>
@@ -401,13 +403,16 @@ if (isset($_POST['guardar'])) {
         </form>
     </div>
 </div>';
+} else {
+    //Las fechas no son validas
+    setEventMessages(array($mensaje_error), array(), 'errors');
+}
 }
 
 if (isset($_POST['confirmForm'])) {
 
-    $idPermiso = $controller->insertarPermiso(); // Inserta el permiso y retorna su ID
+    $idPermiso = $controller->insertarPermiso(); 
     if ($idPermiso) {
-    // Redirigir después de completar las inserciones
     header('Location: dias_permiso_list.php?creado=success');
     exit();
     }
@@ -422,24 +427,21 @@ if (isset($_POST['confirmForm'])) {
 
 
 
-// Parte para editar el registro
 if (($id || $ref) && $action == 'edit') {
 
-    // Si tienes $id, realizas una consulta a la base de datos para obtener el registro
     if ($id > 0) {
         $sql = "SELECT * FROM khns_recursoshumanos_dias_permiso WHERE rowid = ".$db->escape($id);
         $resql = $db->query($sql);
         if ($resql && $db->num_rows($resql) > 0) {
-            $object = $db->fetch_object($resql);  // Aquí obtenemos el objeto del registro
+            $object = $db->fetch_object($resql);  
 
-            // Ahora asignamos los valores del objeto a las variables
             $fecha_solicitada = $object->date_solic;
             $fecha_solicitada_fin = $object->date_solic_fin;
             $usuario_id = $object->fk_user_solicitado;
             $admin_id = $object->fk_user_validador;
             $descripcion = $object->label;
             $estado = $object->status;
-            $motivos = $object->motivos; // Suponiendo que "motivos" es el campo en la base de datos
+            $motivos = $object->motivos; 
         } 
     }
 	print '<script>
@@ -451,7 +453,6 @@ if (($id || $ref) && $action == 'edit') {
         document.getElementById("confirmForm").submit();
     }
     </script>';
-    // Mostrar el formulario de edición con los valores recuperados
     print load_fiche_titre($langs->trans("Edicion de registro"), '', 'object_'.$object->picto);
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'?action=edit&id='.$id.'">'; 
@@ -470,7 +471,6 @@ if (($id || $ref) && $action == 'edit') {
 
     print '<table class="border centpercent tableforfieldedit">'."\n";
 
-    // Mostrar valores específicos del registro
     print "
         <tr>
             <td><span class='fieldrequired'>Fechas solicitada</span></td>
@@ -490,12 +490,11 @@ if (($id || $ref) && $action == 'edit') {
 						var usuarioField = document.getElementsByName("usuario")[0];
 						usuarioField.disabled = true;
 						
-						// Crear un campo oculto con el mismo valor del select deshabilitado
-						var hiddenField = document.createElement("input");
+                        var hiddenField = document.createElement("input");
 						hiddenField.type = "hidden";
-						hiddenField.name = "usuario"; // El mismo nombre que el campo select
-						hiddenField.value = usuarioField.value; // Valor del select
-						usuarioField.parentNode.appendChild(hiddenField); // Agregarlo al formulario
+						hiddenField.name = "usuario";
+						hiddenField.value = usuarioField.value;
+						usuarioField.parentNode.appendChild(hiddenField);
 					});
 				</script>';
 			}
@@ -507,7 +506,6 @@ if (($id || $ref) && $action == 'edit') {
         <tr>
             <td><span class='fieldrequired'>Administrador validador</span></td>
             <td>";
-    // Se selecciona el administrador
     print $form->select_dolusers($admin_id, 'admin', 1, '', 0, '', '','','','','AND admin=1');
     print "</td></tr>";
 
@@ -519,7 +517,7 @@ if (($id || $ref) && $action == 'edit') {
             </td>
         </tr>";
 
-    // Estado: 0 - Pendiente, 1 - Aprobada, 9 - Rechazada
+
     print "
         <tr>
             <td><span class='field'>Estado</span></td>
@@ -532,12 +530,12 @@ if (($id || $ref) && $action == 'edit') {
             </td>
         </tr>";
 
-    // Campo de Motivos (solo se muestra si el estado es Aprobada o Rechazada)
+    //El motivo solo se muestra si el estado es aprobado o rechazado
     print "
         <tr id='motivos-row' style='display: ".($estado == 1 || $estado == 9 ? "table-row" : "none").";'>
             <td><span class='field'>Motivos</span></td>
             <td>
-                <textarea name='motivos' id='motivos' style='height: 168px; width: 625px;'>".htmlspecialchars($motivos)."</textarea>
+                <textarea name='motivos' id='motivos' >".htmlspecialchars($motivos)."</textarea>
             </td>
         </tr>
 		<input type='hidden' name='id' value='".$id."'>
@@ -549,7 +547,7 @@ if (($id || $ref) && $action == 'edit') {
 
     print '<div class="center">';
     print '<input type="submit" class="button button-save" name="editar-submit" value="'.$langs->trans("Edit").'">';
-    print ' &nbsp; <input type="submit" class="button button-cancel" name="cancel" value="'.$langs->trans("Cancel").'">';
+    print ' &nbsp; <input type="button" class="button button-cancel" name="cancel" value="'.$langs->trans("Cancel").'" onclick="window.location.href=\'dias_permiso_list.php\';">';
     print '</div>';
 
     print '</form>';
@@ -574,7 +572,7 @@ document.addEventListener("DOMContentLoaded", function() {
 }
 
 
-// Confirmación para guardar
+//Confirmacion para guardar
 if (isset($_POST['editar-submit'])) {
     $fecha = $_POST['fecha_solicitada'] ?? 'Fecha no especificada';
     $fecha_fin = $_POST['fecha_solicitada_fin'] ?? 'Fecha no especificada';
@@ -620,12 +618,36 @@ if (isset($_POST['editar-submit'])) {
 			$estado_nombre = "Rechazada";
             break;
         default:
-		$estado_nombre = "Estado desconocido";  // En caso de que el valor no sea 0, 1 o 9
+		$estado_nombre = "Estado desconocido"; 
             break;
     }
-    print '
-    <div style="position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5);">
-        <div style="background: white; margin: 15% auto; padding: 20px; border-radius: 5px; width: 400px; text-align: center;">
+
+
+
+
+    $fecha_valida = true;
+    $mensaje_error = '';
+
+    if ($fecha !== 'Fecha no especificada' && $fecha_fin !== 'Fecha no especificada') {
+        $fecha_obj = new DateTime($fecha);
+        $fecha_fin_obj = new DateTime($fecha_fin);
+        
+        if ($fecha_obj > $fecha_fin_obj) {
+            $fecha_valida = false;
+            $mensaje_error = 'La fecha de inicio no puede ser mayor que la fecha final.';
+        }
+        
+        if ($fecha_fin_obj < $fecha_obj) {
+            $fecha_valida = false;
+            $mensaje_error = 'La fecha final no puede ser menor que la fecha de inicio.';
+        }
+    }
+
+
+    if ($fecha_valida) {
+
+    print '<div class="modal-container">
+    <div class="modal-body">
             <h3>Confirmar Acción</h3>
             <p>Está seguro de que desea actualizar el registro con la siguiente información:</p>
             <p><strong>Fecha solicitada:</strong> '.htmlspecialchars(($fecha_formateada)).' <strong>a</strong> '.htmlspecialchars(($fecha_fin_formateada)).'</p> 
@@ -649,6 +671,9 @@ if (isset($_POST['editar-submit'])) {
             </form>
         </div>
     </div>';
+    }else{
+        setEventMessages(array($mensaje_error), array(), 'errors');
+    }
 }
 
 
@@ -661,6 +686,5 @@ if (isset($_POST['updateForm'])) {
 
 ob_end_flush();
 
-// End of page
 llxFooter();
 $db->close();
