@@ -538,17 +538,26 @@ if ($user->admin) {
 print '<div class="div-table-responsive table-container" >';
 print '<table class = "liste" width = "100%">' . "\n";
 
+// Filtros en los parametros para la url
+$filters = '';
+foreach ($_GET as $key => $value) {
+    if ($key != 'page' && $key != 'sortfield' && $key != 'sortorder') {
+        $filters .= '&' . urlencode($key) . '=' . urlencode($value);
+    }
+}
+
+
 print '<tr class = "liste_titre">';
-print_liste_field_titre('Eventtype', $PHP_SELF, 't.event_type', '', $param, '', $sortfield, $sortorder);
-print_liste_field_titre('User', $PHP_SELF, 't.fk_userid', '', $param, '', $sortfield, $sortorder);
-print_liste_field_titre($langs->trans('ProjectRef'), $_SERVER['PHP_SELF'], 'p.ref', '', '', '', $sortfield, $sortorder);
-print_liste_field_titre($langs->trans('Nombre del proyecto'), $_SERVER['PHP_SELF'], 'p.title', '', '', '', $sortfield, $sortorder);
-print_liste_field_titre($langs->trans('Referencia de tarea'), $_SERVER['PHP_SELF'], 'pt.ref', '', '', '', $sortfield, $sortorder);
-print_liste_field_titre($langs->trans('Nombre de tarea'), $_SERVER['PHP_SELF'], 'pt.label', '', '', '', $sortfield, $sortorder);
-print_liste_field_titre('Date', $_SERVER['PHP_SELF'], 't.date_time_event', '', '', '', $sortfield, $sortorder);
+print_liste_field_titre('Eventtype', $_SERVER['PHP_SELF'], 't.event_type', '', $filters, '', $sortfield, $sortorder);
+print_liste_field_titre('User', $PHP_SELF, 't.fk_userid', '', $filters, '', $sortfield, $sortorder);
+print_liste_field_titre($langs->trans('ProjectRef'), $_SERVER['PHP_SELF'], 'p.ref', '', $filters, '', $sortfield, $sortorder);
+print_liste_field_titre($langs->trans('Nombre del proyecto'), $_SERVER['PHP_SELF'], 'p.title', '', $filters, '', $sortfield, $sortorder);
+print_liste_field_titre($langs->trans('Referencia de tarea'), $_SERVER['PHP_SELF'], 'pt.ref', '', $filters, '', $sortfield, $sortorder);
+print_liste_field_titre($langs->trans('Nombre de tarea'), $_SERVER['PHP_SELF'], 'pt.label', '', $filters, '', $sortfield, $sortorder);
+print_liste_field_titre('Date', $_SERVER['PHP_SELF'], 't.date_time_event', '', $filters, '', $sortfield, $sortorder);
 print "\n";
-print_liste_field_titre($langs->trans('Tiempo transcurrido'), $_SERVER['PHP_SELF'], '', '', '', '', $sortfield, $sortorder);
-print_liste_field_titre($langs->trans('Note'), $_SERVER['PHP_SELF'], 't.note', '', '', '', $sortfield, $sortorder);
+print_liste_field_titre($langs->trans('Tiempo transcurrido'), $_SERVER['PHP_SELF'], '', '', $filters, '', $sortfield, $sortorder);
+print_liste_field_titre($langs->trans('Note'), $_SERVER['PHP_SELF'], 't.note', '', $filters, '', $sortfield, $sortorder);
 print_liste_field_titre($langs->trans('Acciones'), $_SERVER['PHP_SELF'], '', '', '', '', $sortfield, $sortorder);
 
 print "\n";

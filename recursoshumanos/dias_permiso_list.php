@@ -235,7 +235,13 @@ print '<input type="hidden" name="contextpage" value="' . $contextpage . '">';
 $newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/recursoshumanos/dias_permiso_card.php', 1) . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF']), '');
 
 print_barre_liste($title, '', '', '', '', '', $massactionbutton, '', '', 'object_' . $object->picto, 0, $newcardbutton, '', '', 0, 0, 0);
-
+// Filtros en los parametros para la url
+$param = '';
+foreach ($_GET as $key => $value) {
+    if ($key != 'page' && $key != 'sortfield' && $key != 'sortorder') {
+        $param .= '&' . urlencode($key) . '=' . urlencode($value);
+    }
+}
 print '<div class="div-table-responsive">';
 print '<table class="tagtable nobottomiftotal liste' . ($moreforfilter ? ' listwithfilterbefore' : '') . '">' . "\n";
 print_liste_field_titre('Código de solicitud', $PHP_SELF, 't.rowid', '', $param, '', $sortfield, $sortorder);

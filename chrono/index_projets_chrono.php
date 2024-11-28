@@ -375,12 +375,19 @@ if ($user->admin) {
     print '</select>';
     print '</div>';
 }
+// Filtros en los parametros para la url
+$filters = '';
+foreach ($_GET as $key => $value) {
+    if ($key != 'page' && $key != 'sortfield' && $key != 'sortorder') {
+        $filters .= '&' . urlencode($key) . '=' . urlencode($value);
+    }
+}
 
 print '<table class = "liste" width = "100%">' . "\n";
 print '<tr class = "liste_titre">';
-print_liste_field_titre('Eventtype', $PHP_SELF, 't.event_type', '', $param, '', $sortfield, $sortorder);
-print_liste_field_titre('User', $PHP_SELF, 't.fk_userid', '', $param, '', $sortfield, $sortorder);
-print_liste_field_titre($langs->trans('Nombre del proyecto'), $_SERVER['PHP_SELF'], 'p.title', '', '', '', $sortfield, $sortorder);
+print_liste_field_titre('Eventtype', $PHP_SELF, 't.event_type', '', $filters, '', $sortfield, $sortorder);
+print_liste_field_titre('User', $PHP_SELF, 't.fk_userid', '', $filters, '', $sortfield, $sortorder);
+print_liste_field_titre($langs->trans('Nombre del proyecto'), $_SERVER['PHP_SELF'], 'p.title', '', $filters, '', $sortfield, $sortorder);
 print_liste_field_titre('Date');
 
 print "\n";
@@ -492,12 +499,12 @@ foreach ($groupedProjects as $project) {
 
     // Tabla de tareas
     print '<tr class="liste_titre">';
-    print_liste_field_titre('Eventtype', $PHP_SELF, 't.event_type', '', $param, '', $sortfield, $sortorder);
-    print_liste_field_titre('User', $PHP_SELF, 't.fk_userid', '', $param, '', $sortfield, $sortorder);
-    print_liste_field_titre($langs->trans('Inicio'), $_SERVER['PHP_SELF'], 't.date_time_event', '', $param, '', $sortfield, $sortorder);
-    print_liste_field_titre($langs->trans('Tiempo transcurrido'), $_SERVER['PHP_SELF'], '', '', $param, '', '', '');
-    print_liste_field_titre($langs->trans('Nota'), $_SERVER['PHP_SELF'], 't.note', '', $param, '', $sortfield, $sortorder);
-    print_liste_field_titre($langs->trans('Acciones'), $_SERVER['PHP_SELF'], '', '', $param, '', '', '');
+    print_liste_field_titre('Eventtype', $PHP_SELF, 't.event_type', '', $filters, '', $sortfield, $sortorder);
+    print_liste_field_titre('User', $PHP_SELF, 't.fk_userid', '', $filters, '', $sortfield, $sortorder);
+    print_liste_field_titre($langs->trans('Inicio'), $_SERVER['PHP_SELF'], 't.date_time_event', '', $filters, '', $sortfield, $sortorder);
+    print_liste_field_titre($langs->trans('Tiempo transcurrido'), $_SERVER['PHP_SELF'], '', '', $filters, '', '', '');
+    print_liste_field_titre($langs->trans('Nota'), $_SERVER['PHP_SELF'], 't.note', '', $filters, '', $sortfield, $sortorder);
+    print_liste_field_titre($langs->trans('Acciones'), $_SERVER['PHP_SELF'], '', '', $filters, '', '', '');
     print '</tr>';
 
     // Tareas del proyecto
