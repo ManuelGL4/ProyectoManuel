@@ -229,60 +229,39 @@ llxHeader('', $title);
 print load_fiche_titre($langs->trans('Chrono'), '', 'object_informacion_formacion.png@recursoshumanos');
 print '<script src="script.js"></script>';
 
-// Formulario de busqueda
-print '
-<table class="noborder centpercent">
-    <tr class="liste_titre">
-        <form name="buscar" method="POST" action="' . $_SERVER['PHP_SELF'] . ($project->id > 0 ? '?id=' . $project->id : '') . '">
-            <div class="div-table-responsive" style="min-height: 0px !important;">
-                <tbody>
-                    <tr class="liste_titre_filter">
-                        <td class="liste_titre">
-                            <label>Nombre del Proyecto</label><br>
-                            <input class="flat" type="text" name="search_project_ref" value="' . htmlspecialchars($search_project_ref) . '">
-                        </td>
-                        <td class="liste_titre">
-                            <label>Nombre de la tarea</label><br>
-                            <input class="flat" type="text" name="search_task_label" value="' . htmlspecialchars($search_task_label) . '">
-                        </td>
-                        <td class="liste_titre">
-                            <button type="submit" class="liste_titre button_search" name="button_search_x" value="x">
+print '<form name="buscar" method="POST" action="' . $_SERVER['PHP_SELF'] . ($project->id > 0 ? '?id=' . $project->id : '') . '">';
+print '<table class = "liste" width = "100%">' . "\n";
+print '<tr class = "liste_titre">';
+print_liste_field_titre('Nombre del proyecto', $PHP_SELF, '`p.name', '', $filters, '');
+print_liste_field_titre('Nombre de la tarea', $PHP_SELF, 't.name', '', $filters, '');
+print_liste_field_titre('');
+
+print '</tr>' . "\n";
+print '<tr class = "liste_titre">';
+
+print '<td class = "liste_titre" colspan = "1" >';
+print ' <input class="flat" type="text" name="search_project_ref" value="' . htmlspecialchars($search_project_ref) . '">';
+print '</td>';
+
+print '<td class = "liste_titre" colspan = "1" >';
+print '<input class="flat" type="text" name="search_task_label" value="' . htmlspecialchars($search_task_label) . '">';
+print '</td>';
+
+print '<td class = "liste_titre" colspan = "1" >';
+print '<button type="submit" class="liste_titre button_search" name="button_search_x" value="x">
                                 <span class="fa fa-search"></span>
                             </button>
                             <button type="submit" class="liste_titre button_removefilter" name="button_removefilter" value="1">
                                 <span class="fa fa-remove"></span>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </div>
-        </form>
-    </tr>
-    <tr>
-        <td class="liste_titre">
-            <div class="nowraponall">
-                <div style="text-align: right;">
-                    <button type="button" id="resetButton"  class="butAction">Nuevo Día / Reestablecer Todos los Tiempos</button>
-                </div>
-            </div>
-        </td>
-        <td>
-        </td>
-        <td>
-        </td>
-    </tr>
-</table>
-<br>';
+                            </button>';
+print '</td>';
 
-// Modal de elimancion
-print '<div id="confirmModal" >
-    <div class="bodyModal" >
-        <h3>Confirmar Acción</h3>
-        <p>¿Está seguro de que desea reiniciar todos los tiempos?</p>
-        <button id="confirmReset" class="button button-confirm">Sí</button>
-        <button id="cancelReset" class="button button-cancel">No</button>
-    </div>
-</div>';
+
+
+print '</tr>';
+print '</table>
+</form>
+<br>';
 
 print '<input type="hidden" name="usuario_id" value="' . $user->id . '">';
 
