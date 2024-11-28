@@ -285,6 +285,33 @@ class Dia_permiso
 
 
     
+    public function actualizarPermisoAPI($id, $descripcion, $usuario_id, $fecha_solicitada, $fecha_solicitada_fin, $motivos, $estado = null) {
+        // Convertir formato de fecha si es necesario
+        $fecha_solicitada = (new DateTime($fecha_solicitada))->format('Y-m-d H:i:s');
+        $fecha_solicitada_fin = (new DateTime($fecha_solicitada_fin))->format('Y-m-d H:i:s');
+    
+        // Construir la consulta SQL
+        $consulta = 'UPDATE ' . MAIN_DB_PREFIX . 'recursoshumanos_dias_permiso 
+            SET 
+                motivos = "' . $this->db->escape($motivos) . '",
+                label = "' . $this->db->escape($descripcion) . '", 
+                fk_user_creat = ' . $usuario_id . ', 
+                fk_user_modif = ' . $usuario_id . ', 
+                fk_user_solicitado = ' . $usuario_id . ', 
+                date_solic = "' . $this->db->escape($fecha_solicitada) . '", 
+                date_solic_fin = "' . $this->db->escape($fecha_solicitada_fin) . '"';
+    
+        // Solo incluir la actualización de `status` si se proporciona un valor
+        if (!is_null($estado)) {
+            $consulta .= ', status = ' . $estado;
+        }
+    
+        // Agregar la cláusula WHERE para identificar el registro
+        $consulta .= ' WHERE rowid = ' . $id;
+    
+        // Ejecutar la consulta
+        return $this->db->query($consulta);
+    }
     
     
     

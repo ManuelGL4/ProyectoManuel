@@ -19,7 +19,7 @@
 use Luracast\Restler\RestException;
 
 dol_include_once('/recursoshumanos/class/informacion_noticias.class.php');
-dol_include_once('/recursoshumanos/app/DiaPermisoController.php');
+dol_include_once('/recursoshumanos/app/DiaPermiso.php');
 
 
 
@@ -54,7 +54,7 @@ class RecursosHumanosApi extends DolibarrApi
 		global $db, $conf;
 		$this->db = $db;
 		$this->informacion_noticias = new Informacion_noticias($this->db);
-		$this->diapermiso = new DiaPermisoController($this->db);
+		$this->diapermiso = new Dia_Permiso($this->db);
 	}
 
 	/**
@@ -411,30 +411,17 @@ public function updateDiaPermiso($request_data) {
     $motivos = $request_data['motivos'];
     $status = $request_data['status'];
 
-    // Convertir las fechas de string a objetos DateTime
     try {
-        $date_solic = new DateTime($date_solic); // Convierte la fecha de inicio en DateTime
-        $date_solic_fin = new DateTime($date_solic_fin); // Convierte la fecha de fin en DateTime
+        $date_solic = new DateTime($date_solic); 
+        $date_solic_fin = new DateTime($date_solic_fin); 
     } catch (Exception $e) {
         throw new RestException(400, "Error en el formato de las fechas: " . $e->getMessage());
     }
 
-    // Formatear las fechas al formato que se espera en la base de datos (por ejemplo, 'Y-m-d H:i:s')
     $date_solic = $date_solic->format('Y-m-d H:i:s');
     $date_solic_fin = $date_solic_fin->format('Y-m-d H:i:s');
+    $result = $this->diapermiso->actualizarPermisoAPI($rowid,$label,$fk_user_solicitado,$date_solic,$date_solic_fin,$motivos,$status);
     
-    // Hacer el update con lo obtenido en el body
-    $sql = "UPDATE ".MAIN_DB_PREFIX."recursoshumanos_dias_permiso SET 
-            label = '$label',
-            fk_user_solicitado = $fk_user_solicitado,
-            date_solic = '$date_solic',
-            date_solic_fin = '$date_solic_fin',
-            motivos = '$motivos',
-            status = $status
-            WHERE rowid = $rowid";
-    
-    // Ejecutar la consulta SQL
-    $result = $this->db->query($sql);
     if ($result) {
         return ['message' => 'Permiso actualizado correctamente'];
     } else {
@@ -454,10 +441,10 @@ public function updateDiaPermiso($request_data) {
 	 */
 	public function deletePermiso($id)
 	{
-		$sql = "DELETE FROM ".MAIN_DB_PREFIX."recursoshumanos_dias_permiso WHERE rowid = ".intval($id);
-		$result = $this->db->query($sql);
+		$result = $this->diapermiso->deleteRegistro($id);	
 		if ($result) {
-			return ['message' => 'Permiso eliminado correctamente'];
+		return ['message' => 'Permiso eliminado correctamente'];
+
 		} else {
 			throw new RestException(500, 'Error al eliminar el permiso');
 		}
@@ -508,8 +495,8 @@ public function postPermiso($request_data = null)
         
         // Recoger los datos desde $request_data
         $descripcion = $request_data['motivos'];
-        $usuario_id = intval($request_data['usuario']);
-        $admin_id = $request_data['fk_user_validador'];
+        $usuario = intval($request_data['usuario']);
+        $admin = $request_data['fk_user_validador'];
         $fecha_solicitada = $request_data['date_solic'];
         $fecha_solicitada_fin = $request_data['date_solic_fin'];
 
@@ -525,17 +512,12 @@ public function postPermiso($request_data = null)
 		$fecha_solicitada_fin = $fecha_solicitada_fin_obj->format('Y-m-d H:i:s');
 	    $fecha_creation = date('Y-m-d H:i:s');  // Fecha actual para la columna date_creation
 
-	
-		$sql = "INSERT INTO ".MAIN_DB_PREFIX."recursoshumanos_dias_permiso  
-		(label, fk_user_solicitado, date_solic, date_solic_fin, fk_user_creat, fk_user_validador, status, date_creation, motivos) 
-		VALUES 
-		('".$descripcion."', $usuario_id, '".$fecha_solicitada."', '".$fecha_solicitada_fin."', $usuario_id, $admin_id, 0, '".$fecha_creation."', 'Motivos no especificados')";
-		
-		$result=$this->db->query($sql);
+		$result=$this->diapermiso->insertarPermiso($descripcion,$usuario,$fecha_solicitada,$fecha_solicitada_fin,$admin);
+
 		if ($result) {
 			return ['id' => $result];
 		} else {
-			throw new RestException(500, "Hubo un problema al insertar el permiso.$sql");
+			throw new RestException(500, "Hubo un problema al insertar el permiso.");
 		}
 
 }

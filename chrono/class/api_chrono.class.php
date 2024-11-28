@@ -18,11 +18,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use App\Chrono;
 use Luracast\Restler\RestException;
 
-require_once DOL_DOCUMENT_ROOT . '/custom/chrono/app/ChronoController.php';
+require_once DOL_DOCUMENT_ROOT . '/custom/chrono/app/Chrono.php';
 
-dol_include_once('/chrono/class/tiempotarea.class.php');
 // require_once '../../timesheet/class/TimesheetAttendanceEvent.class.php';
 
 /**
@@ -39,6 +39,7 @@ dol_include_once('/chrono/class/tiempotarea.class.php');
  */
 class ChronoApi extends DolibarrApi
 {
+    public $chrono;
     /**
      * Constructor
      *
@@ -48,15 +49,23 @@ class ChronoApi extends DolibarrApi
     {
         global $db, $conf;
         $this->db = $db;
+        $this->chrono = new Chrono($this->db);
     }
 
+
+    /**
+     * 
+     * METODO PARA GENERAR UN TOKEN NUEVO
+     * 
+     * @return string
+     */
     function generateToken()
     {
         $randomBytes = random_bytes(16);
 
         $token = bin2hex($randomBytes);
 
-        return substr($token, 0, 32);  // Recorta a 32 caracteres
+        return substr($token, 0, 32); 
     }
 
     /**
@@ -90,7 +99,7 @@ class ChronoApi extends DolibarrApi
         $fk_userid = isset($request_data['fk_userid']) ? (int) $request_data['fk_userid'] : 'NULL';
         $token = $this->generateToken();
 
-        if ($event_type == 3) {  // Si es una salida
+        if ($event_type == 3) {  // Si es una salida,se debe de obtener el token de entrada
             $entry_sql = 'SELECT token FROM ' . MAIN_DB_PREFIX . 'attendance_event 
                       WHERE fk_userid = ' . $fk_userid . ' 
                       AND fk_task = ' . $fk_task . ' 
@@ -106,6 +115,7 @@ class ChronoApi extends DolibarrApi
             }
         }
 
+        //Se inserta el registro
         $sql = 'INSERT INTO ' . MAIN_DB_PREFIX . "attendance_event (
                 date_time_event,
                 event_location_ref,
@@ -119,17 +129,17 @@ class ChronoApi extends DolibarrApi
                 status,
                 token
             ) VALUES (
-                '" . $now . "',               -- date_time_event
-                '" . $event_location_ref . "', -- event_location_ref
-                " . $event_type . ",           -- event_type
-                '" . $note . "',               -- note
-                " . $fk_userid . ',            -- fk_userid (el usuario que crea)
-                ' . $fk_userid . ',            -- fk_user_modification
-                ' . $fk_third_party . ',       -- fk_third_party
-                ' . $fk_task . ',              -- fk_task
-                ' . $fk_project . ',           -- fk_project
-                ' . $status . ",                -- status
-                '" . $token . "'               -- token
+                '" . $now . "',              
+                '" . $event_location_ref . "',
+                " . $event_type . ",       
+                '" . $note . "',             
+                " . $fk_userid . ',            
+                ' . $fk_userid . ',           
+                ' . $fk_third_party . ',      
+                ' . $fk_task . ',         
+                ' . $fk_project . ',           
+                ' . $status . ",              
+                '" . $token . "'            
             )";
 
         $resql = $this->db->query($sql);
@@ -142,7 +152,7 @@ class ChronoApi extends DolibarrApi
 
         $insertedIds[] = $this->db->last_insert_id('' . MAIN_DB_PREFIX . 'attendance_event');
 
-        if ($event_type == 3) {
+        if ($event_type == 3) {//Si el evento es salida
             $token = isset($request_data['token']) ? $this->db->escape($request_data['token']) : null;
 
             if ($event_type == 3 && $token) {  // Si es una salida y el token es válido
@@ -152,6 +162,7 @@ class ChronoApi extends DolibarrApi
 
                 $entry_resql = $this->db->query($entry_sql);
 
+                //Obtener la diferencia en segundos 
                 if ($entry_resql && $entry_row = $this->db->fetch_object($entry_resql)) {
                     $entry_date_time = $entry_row->date_time_event;
 
@@ -167,7 +178,7 @@ class ChronoApi extends DolibarrApi
             } else {
                 $task_duration = 0;
             }
-
+            //Seleccionar el coste por hora del usuario
             $user_thm_sql = 'SELECT thm FROM ' . MAIN_DB_PREFIX . 'user WHERE rowid = ' . (int) $fk_userid;
             $user_thm_resql = $this->db->query($user_thm_sql);
 
@@ -184,6 +195,7 @@ class ChronoApi extends DolibarrApi
             $import_key = isset($request_data['import_key']) ? $this->db->escape($request_data['import_key']) : 'NULL';
             $status_exit = isset($request_data['status']) ? (int) $request_data['status'] : 1;
 
+            //Se inserta en la tabla de dolibarr para asignarle ese tiempo a la tarea
             $sql_task_time = 'INSERT INTO ' . MAIN_DB_PREFIX . 'projet_task_time (
                             fk_task,
                             task_date,
@@ -252,6 +264,8 @@ class ChronoApi extends DolibarrApi
             throw new RestException(400, 'Parámetros inválidos');
         }
 
+        // Seleccionar el registro que tenga entrada pero NO salida,entonces es esa la tarea activa
+
         $sql = 'SELECT * FROM ' . MAIN_DB_PREFIX . 'attendance_event AS entry 
     WHERE fk_userid = ' . $fk_userid . ' 
     AND event_type = 2  
@@ -302,7 +316,7 @@ class ChronoApi extends DolibarrApi
 
         $obj_ret = array();
 
-        // Check if user exists
+
         $userSql = 'SELECT * FROM ' . MAIN_DB_PREFIX . 'user WHERE rowid = ' . intval($fk_user_id);
         $userResql = $this->db->query($userSql);
 
@@ -368,9 +382,7 @@ class ChronoApi extends DolibarrApi
      */
     public function eliminar($token)
     {
-        global $db;
-        $sql = 'DELETE FROM ' . MAIN_DB_PREFIX . "attendance_event WHERE token = '" . $token . "'";
-        $resql = $this->db->query($sql);
+        $resql=$this->chrono->delete($token);
         if (!$resql) {
             throw new RestException(500, 'Error deleting TiempoTarea in database', [
                 'error' => $this->db->lasterror()
@@ -418,7 +430,6 @@ class ChronoApi extends DolibarrApi
         $controller = new ChronoController($db);
         $resultado = $controller->editarTarea($id, $fecha_inicio, $nota);
 
-        // Retornar el resultado adecuado
         if (isset($resultado['error'])) {
             throw new RestException(400, $resultado['error']);
         } elseif (isset($resultado['success'])) {
@@ -467,10 +478,8 @@ class ChronoApi extends DolibarrApi
                 SC1.fk_userid, SC1.fk_task, SC1.date_time_event;
         ";
 
-        // Ejecutar la consulta
         $result = $this->db->query($sql);
 
-        // Verificar si la consulta fue exitosa
         if ($result) {
             $obj_ret = [];
             while ($obj = $this->db->fetch_object($result)) {
@@ -482,7 +491,6 @@ class ChronoApi extends DolibarrApi
                 ];
             }
 
-            // Verificar si se encontraron resultados
             if (!count($obj_ret)) {
                 throw new RestException(404, 'No se encontraron temporizadores para el usuario.');
             }

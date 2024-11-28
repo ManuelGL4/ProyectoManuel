@@ -183,7 +183,17 @@ background: white !important; margin: 15% auto !important; padding: 20px !import
 
 }
 
+@media (max-width: 500px) {
+    #descripcion{
+    height: 110px !important;
+        width:62% !important;
+    }
+    #motivos{
+        height: 110px !important;
+        width:62% !important;
+    }
 
+}
 
 </style>';
 

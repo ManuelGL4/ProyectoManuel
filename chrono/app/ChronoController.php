@@ -119,7 +119,7 @@ class ChronoController
                 $userid = intval($_GET['ls_userid']);
                 $sqlUpd .= " AND t.fk_userid = $userid";
             }
-        } elseif (isset($_GET['filter_type']) && $_GET['filter_type'] === 'assigned') {
+        } elseif (isset($_GET['filter_type']) && $_GET['filter_type'] === 'my_records') {
             $sqlUpd .= ' AND t.fk_userid = ' . intval($user->id);
         } else {
             if (!$user->admin) {

@@ -264,6 +264,10 @@ if ($resqlPermisos) {
 .date-selector {
     text-align: center; margin-top: 20px;
 }
+#container{
+    overflow: hidden;
+    max-width: 100%;
+}
 </style>
     
 <meta charset="UTF-8">

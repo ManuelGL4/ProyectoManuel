@@ -89,11 +89,14 @@ public function getRegistros($user,$filters) {
 public function deleteRegistro($id) {
     $resultado = $this->model->deleteRegistro($id);
     if ($resultado) {
+
         header('Location: dias_permiso_list.php?delete=success');
         setEventMessages(array("Registro eliminado con éxito."), array(), 'mesgs');
+        return $resultado;
     } else {
         header('Location: dias_permiso_list.php?delete=error');
         setEventMessages(array("Error al intentar eliminar el registro, por favor, inténtelo de nuevo."), array(), 'errors');
+        return $resultado;
     }
 }
 

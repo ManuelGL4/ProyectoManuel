@@ -153,6 +153,35 @@ table.liste th, table.liste td {
 
 
 
+
+@media (max-width: 500px) {
+table.liste th {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    background-color: #fff; 
+    z-index: 1; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+}
+
+table.liste {
+    width: 100%; 
+    border-collapse: collapse;
+}
+
+table.liste th, table.liste td {
+    padding: 10px; 
+    border: 1px solid #ddd; 
+}
+    .table-container {
+        max-height: 700px;
+        overflow-y: auto;
+    }
+
+
+}
+
+
 </style>';
 
 print '<script>

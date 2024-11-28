@@ -168,6 +168,55 @@ display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; hei
 .time-buttons button {
     margin-bottom: 10px;
 }
+
+
+
+
+@media (max-width: 768px) {
+    table.noborder.centpercent {
+        display: block;
+        width: 110%;
+    }
+
+    table.noborder.centpercent .liste_titre_filter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    table.noborder.centpercent td.liste_titre {
+        flex: 1 1 100%;
+        box-sizing: border-box;
+        padding: 5px;
+        margin-bottom: 26px;
+    }
+
+    table.noborder.centpercent input.flat {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    table.noborder.centpercent button {
+        width: 100%;
+        max-width: 100px;
+        margin: 5px auto;
+
+    }
+    button#resetButton{
+        display: none;
+    }
+
+
+    table.liste tr:last-of-type td, table.noborder:not(#tablelines) tr:last-of-type td, table.formdoc tr:last-of-type td, div.noborder tr:last-of-type td {
+        border-bottom-width: 0px !important;
+        border-bottom-color: none !important; 
+        border-bottom-style: none !important; 
+    }
+}
+
+
+
+
 </style>';
 
 /** VISTA */
@@ -266,8 +315,8 @@ foreach ($projects as $project) {
     print '</div>';
 }
 
-print '<div class="search-container">';
-print '<div class="time-buttons">';
+print '<div class="">';
+print '<div class="time">';
 print '<button class=" button-cancel butAction" id="current-time">Hora actual: 00:00:00</button>';
 print '<button class=" button-cancel butAction" id="total-time">Tiempo total: 0h 0m 0s</button>';
 print '</div>';

@@ -116,7 +116,32 @@ background: white; padding: 20px; border-radius: 8px; width: 400px; text-align: 
     }
 }
 
-
+@media (max-width: 500px) {
+    .noborder.centpercent {
+        font-size: 9px;
+    }
+    table.liste {
+        font-size: 9px;
+    }
+    span.select2.select2-container.select2-container--default {
+        width: 63px !important; 
+    }
+    table.liste th.wrapcolumntitle.liste_titre:not(.maxwidthsearch), table.liste td.wrapcolumntitle.liste_titre:not(.maxwidthsearch) {
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        max-width: 60px !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    input, input[type=text], input[type=password], select, textarea {
+        min-width: 20px !important;
+        max-width: 100px !important;
+    }
+    .liste_titre input {
+        max-width: 28px !important;
+        padding: 5px !important;
+    }
+}
 </style>';
 
 require '../../main.inc.php';
