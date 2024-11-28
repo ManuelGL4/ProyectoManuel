@@ -186,7 +186,7 @@ function startTimer(taskId, apiKeyInput, userIdInput) {
 
     const taskData = {
         date_time_event: startDateForTask,
-        event_location_ref: "Prueba",
+        // event_location_ref: "Prueba", DESCOMENTAR PARA EL FUTURO
         event_type: 2, // Evento de entrada
         note: note,
         fk_userid: userIdInput,
@@ -238,7 +238,7 @@ function stopTimer(taskId) {
         const taskData = {
             event_type: 3, // Evento de salida
             date_time_event: endDateForTask,
-            event_location_ref: "Prueba",
+            // event_location_ref: "Prueba", DESCOMENTAR PARA EL FUTURO
             note: note,
             fk_userid: userId,
             fk_task: taskId,
