@@ -303,7 +303,6 @@ class Chrono
         // Calcular el offset para la paginación
         $offset = ($page - 1) * $perPage;
 
-        // Inicializar la consulta básica
         $sqlUpd = 'SELECT DISTINCT t.rowid, t.*, p.title AS project_title, pt.label AS task_label 
                    FROM ' . MAIN_DB_PREFIX . 'attendance_event AS t
                    INNER JOIN ' . MAIN_DB_PREFIX . 'projet AS p ON t.fk_project = p.rowid
@@ -335,13 +334,13 @@ class Chrono
 
         // Filtro por referencia de ubicación
         if (isset($filters['ls_event_location_ref']) && !empty($filters['ls_event_location_ref'])) {
-            $eventLocationRef = $this->db->escape($filters['ls_event_location_ref']);  // Escapa el valor para evitar inyecciones SQL
+            $eventLocationRef = $this->db->escape($filters['ls_event_location_ref']);  
             $sqlUpd .= " AND p.ref LIKE '%$eventLocationRef%'";
         }
 
         // Filtro por nombre de proyecto
         if (isset($filters['ls_nombre_proyecto']) && !empty($filters['ls_nombre_proyecto'])) {
-            $nombre = $this->db->escape($filters['ls_nombre_proyecto']);  // Escapa el valor para evitar inyecciones SQL
+            $nombre = $this->db->escape($filters['ls_nombre_proyecto']);  
             $sqlUpd .= " AND p.title LIKE '%$nombre%'";
         }
 
@@ -361,7 +360,6 @@ class Chrono
         if (isset($filters['ls_date_time']) && !empty($filters['ls_date_time'])) {
             $date_time = $this->db->escape($filters['ls_date_time']);
 
-            // Modificar la consulta para buscar por la fecha (ignorando la hora)
             $sqlUpd .= " AND DATE(t.date_time_event) = '" . $date_time . "'";
         }
 
@@ -372,17 +370,17 @@ class Chrono
         $sqlUpd .= " ORDER BY $sortField $sortOrder 
                      LIMIT $offset, $perPage";
 
-        // Ejecutar la consulta y retornar los resultados
+
         $result = $this->db->query($sqlUpd);
         if ($result) {
             $projects = [];
             while ($obj = $this->db->fetch_object($result)) {
-                $projects[] = $obj;  // Almacenar cada objeto stdClass
+                $projects[] = $obj;  
             }
-            return $projects;  // Devolver los proyectos como un array de objetos stdClass
+            return $projects;  
         } else {
             dol_print_error($this->db);
-            return false;  // Si la consulta falla, devolver false
+            return false;  
         }
     }
 
@@ -390,14 +388,14 @@ class Chrono
     {
         $db = $this->db;
 
-        // Base de la consulta para contar registros
+  
         $countSql = 'SELECT COUNT(*) as total FROM ' . MAIN_DB_PREFIX . 'attendance_event as t';
         $countSql .= ' JOIN ' . MAIN_DB_PREFIX . 'user as u ON t.fk_userid = u.rowid';
         $countSql .= ' JOIN ' . MAIN_DB_PREFIX . 'projet as p ON t.fk_project = p.rowid';
         $countSql .= ' JOIN ' . MAIN_DB_PREFIX . 'projet_task as pt ON t.fk_task = pt.rowid';
         $countSql .= ' WHERE 1 = 1';
 
-        // Filtro por tipo de evento
+   
         if (isset($filters['ls_event_type']) && intval($filters['ls_event_type']) !== 0) {
             $eventype = intval($filters['ls_event_type']);
             $countSql .= " AND t.event_type = $eventype";
@@ -473,18 +471,6 @@ class Chrono
             $formattedDate = date('Y-m-d H:i:s', strtotime($datAttendance->date_time_event));
             $fk_user = $datAttendance->fk_userid;
 
-            // Eliminar el registro de projet_task_time
-            $sqlDeleteTaskTime = 'DELETE FROM ' . MAIN_DB_PREFIX . 'projet_task_time 
-                                  WHERE fk_user = ' . intval($fk_user) . " 
-                                  AND task_datehour = '" . $db->escape($formattedDate) . "';";
-            $resultDeleteTaskTime = $db->query($sqlDeleteTaskTime);
-
-            $response['deleted_task_time'] = $resultDeleteTaskTime;
-
-            if (!$resultDeleteTaskTime) {
-                $response['message'] = 'Error al borrar el registro de tiempo en projet_task_time.';
-                return $response;
-            }
 
             // Eliminar el registro de attendance_event
             $sqlDeleteAttendance = 'DELETE FROM ' . MAIN_DB_PREFIX . "attendance_event WHERE token = '" . $token . "';";
@@ -569,7 +555,7 @@ class Chrono
 
     function editarTarea($id, $fecha_inicio, $nota)
     {
-        $db = $this->db;  // Obtener la conexión a la base de datos
+        $db = $this->db;  
 
         // Validación básica
         if (empty($fecha_inicio)) {
@@ -629,16 +615,7 @@ class Chrono
                 $formattedDate = date('Y-m-d H:i:s', strtotime($datAttendance->date_time_event));
                 $taskDuration = abs($userStartTime - $otherDateTimeTimestamp);
 
-                $sqlUpdateTask = 'UPDATE ' . MAIN_DB_PREFIX . "projet_task_time SET
-                    task_datehour = '" . $db->escape($fecha_inicio) . "',
-                    note = '" . $db->escape($nota) . "',
-                    task_duration = task_duration + " . $taskDuration . '
-                    WHERE fk_user = ' . intval($datAttendance->fk_userid) . " 
-                    AND task_datehour = '" . $db->escape($formattedDate) . "'";
 
-                if (!$db->query($sqlUpdateTask)) {
-                    return ['error' => 'Error al actualizar projet_task_time: ' . $db->lasterror()];
-                }
 
                 $sqlUpdateAttendance = 'UPDATE ' . MAIN_DB_PREFIX . "attendance_event SET
                     date_time_event = '" . $db->escape($fecha_inicio) . "',

@@ -37,11 +37,10 @@ public function insertarPermiso() {
         $fecha_solicitada !== null && $fecha_solicitada !== '' &&
         $fecha_solicitada_fin !== null && $fecha_solicitada_fin !== '') {
         
-        // Llamar al método del modelo para insertar los datos
         $resultado = $this->model->insertarPermiso($descripcion, $usuario_id, $fecha_solicitada, $fecha_solicitada_fin, $admin_id);
 
         if ($resultado) {
-            return $resultado; // Retornar el ID del permiso insertado
+            return $resultado; 
         }
     } else {
         // Mensaje de error si algún campo está vacío o es null

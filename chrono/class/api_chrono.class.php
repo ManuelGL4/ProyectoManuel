@@ -178,61 +178,7 @@ class ChronoApi extends DolibarrApi
             } else {
                 $task_duration = 0;
             }
-            //Seleccionar el coste por hora del usuario
-            $user_thm_sql = 'SELECT thm FROM ' . MAIN_DB_PREFIX . 'user WHERE rowid = ' . (int) $fk_userid;
-            $user_thm_resql = $this->db->query($user_thm_sql);
-
-            if ($user_thm_resql && $user_thm_row = $this->db->fetch_object($user_thm_resql)) {
-                $thm = $user_thm_row->thm;
-            } else {
-                $thm = NULL;
-            }
-
-            $task_date = $now;
-            $task_datehour = $now;
-            $invoice_id = isset($request_data['invoice_id']) ? (int) $request_data['invoice_id'] : 'NULL';
-            $invoice_line_id = isset($request_data['invoice_line_id']) ? (int) $request_data['invoice_line_id'] : 'NULL';
-            $import_key = isset($request_data['import_key']) ? $this->db->escape($request_data['import_key']) : 'NULL';
-            $status_exit = isset($request_data['status']) ? (int) $request_data['status'] : 1;
-
-            //Se inserta en la tabla de dolibarr para asignarle ese tiempo a la tarea
-            $sql_task_time = 'INSERT INTO ' . MAIN_DB_PREFIX . 'projet_task_time (
-                            fk_task,
-                            task_date,
-                            task_datehour,
-                            task_date_withhour,
-                            task_duration,
-                            fk_user,
-                            thm,
-                            note,
-                            invoice_id,
-                            invoice_line_id,
-                            import_key,
-                            datec,
-                            status
-                        ) VALUES (
-                            ' . $fk_task . ",              -- fk_task
-                            '" . $task_date . "',         -- task_date
-                            '" . $task_datehour . "',     -- task_datehour
-                            1, -- task_date_withhour
-                            " . $task_duration . ',       -- task_duration
-                            ' . $fk_userid . ',           -- fk_user
-                            ' . $thm . ",                 -- thm
-                            '" . $note . "',              -- note
-                            " . $invoice_id . ',          -- invoice_id
-                            ' . $invoice_line_id . ",     -- invoice_line_id
-                            '" . $import_key . "',        -- import_key
-                            '" . $now . "',               -- datec
-                            " . $status_exit . '          -- status
-                        )';
-
-            $resql_task_time = $this->db->query($sql_task_time);
-            if (!$resql_task_time) {
-                throw new RestException(500, 'Error inserting task time in database', [
-                    'sql_error' => $this->db->lasterror(),
-                    'field_values' => $request_data
-                ]);
-            }
+          
         }
 
         return [

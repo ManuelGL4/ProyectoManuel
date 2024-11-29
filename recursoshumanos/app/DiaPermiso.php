@@ -224,11 +224,9 @@ class Dia_permiso
 
 
     public function insertarPermiso($descripcion, $usuario_id, $fecha_solicitada, $fecha_solicitada_fin, $admin_id) {
-        // Establecer valores fijos y convertir formato de fecha si es necesario
-        $status = 0; // Status fijo en 0
-        $date_creation = date("Y-m-d H:i:s"); // Fecha actual para la creación
+        $status = 0; 
+        $date_creation = date("Y-m-d H:i:s"); 
 
-        // Construir la consulta de inserción (igual que la proporcionada)
         $consulta = 'INSERT INTO ' . MAIN_DB_PREFIX . 'recursoshumanos_dias_permiso 
             (label, date_creation, fk_user_creat, fk_user_modif, status, fk_user_solicitado, date_solic, date_solic_fin, fk_user_validador) 
             VALUES 
@@ -243,13 +241,11 @@ class Dia_permiso
             ' . $admin_id . ')';
 
             if ($this->db->query($consulta)) {
-                // Devuelve el ID del último registro insertado
                 $consulta = "SELECT LAST_INSERT_ID() AS id FROM " . MAIN_DB_PREFIX . "recursoshumanos_dias_permiso";
                 $resultado = $this->db->query($consulta);
                 $row = $this->db->fetch_object($resultado);
                 return $row->id;
             } else {
-                // Manejar errores en la consulta
                 dol_syslog("Error en insertarPermiso: " . $this->db->lasterror(), LOG_ERR);
                 return false;
             }
@@ -257,11 +253,9 @@ class Dia_permiso
 
 
     public function actualizarPermiso($id, $descripcion, $usuario_id, $fecha_solicitada, $fecha_solicitada_fin, $admin_id, $motivos, $estado) {
-        // Convertir formato de fecha si es necesario
         $fecha_solicitada = (new DateTime($fecha_solicitada))->format('Y-m-d H:i:s');
         $fecha_solicitada_fin = (new DateTime($fecha_solicitada_fin))->format('Y-m-d H:i:s');
 
-        // Construir la consulta de actualización (igual que la proporcionada)
         $consulta = 'UPDATE ' . MAIN_DB_PREFIX . 'recursoshumanos_dias_permiso 
             SET 
                 motivos = "' . $this->db->escape($motivos) . '",
@@ -273,9 +267,9 @@ class Dia_permiso
                 date_solic = "' . $this->db->escape($fecha_solicitada) . '", 
                 date_solic_fin = "' . $this->db->escape($fecha_solicitada_fin) . '",
                 fk_user_validador = ' . $admin_id . '
-            WHERE rowid = ' . $id;  // Asegúrate de usar el ID para identificar el registro a actualizar
+            WHERE rowid = ' . $id;  
 
-        // Ejecutar la consulta
+   
         return $this->db->query($consulta);
     }
     public function deleteRegistro($id) {
@@ -286,7 +280,6 @@ class Dia_permiso
 
     
     public function actualizarPermisoAPI($id, $descripcion, $usuario_id, $fecha_solicitada, $fecha_solicitada_fin, $motivos, $estado = null) {
-        // Convertir formato de fecha si es necesario
         $fecha_solicitada = (new DateTime($fecha_solicitada))->format('Y-m-d H:i:s');
         $fecha_solicitada_fin = (new DateTime($fecha_solicitada_fin))->format('Y-m-d H:i:s');
     
@@ -301,7 +294,6 @@ class Dia_permiso
                 date_solic = "' . $this->db->escape($fecha_solicitada) . '", 
                 date_solic_fin = "' . $this->db->escape($fecha_solicitada_fin) . '"';
     
-        // Solo incluir la actualización de `status` si se proporciona un valor
         if (!is_null($estado)) {
             $consulta .= ', status = ' . $estado;
         }
